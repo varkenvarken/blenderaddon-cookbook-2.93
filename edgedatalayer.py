@@ -1,6 +1,6 @@
 #  edgedatalayer.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy, bmesh
 bl_info = {
 	"name": "Edge Custom Data",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701011345),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301636),
+	"blender": (2, 92, 0),
 	"location": "View3D > Edit > Edge Custom Data",
 	"description": "Change/Add Edge Custom Data",
 	"warning": "",
@@ -69,12 +69,15 @@ def menu_func(self, context):
 		text=EdgeCustomData.bl_label,
 		icon='PLUGIN')
 
+classes = [EdgeCustomData]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

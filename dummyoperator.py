@@ -1,6 +1,6 @@
 #  dummyoperator.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy
 bl_info = {
 	"name": "Dummy Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612251505),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301629),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Dummy Op",
 	"description": "A dummy operator",
 	"warning": "",
@@ -50,9 +50,8 @@ class DummyOp(bpy.types.Operator):
 		return {"FINISHED"}
 
 
-# we don't need a menu entry but it's
-# easier than hitting spacebar and searching
-
+# we do need a menu entry. Operators without it cannot be searched.
+# see: https://wiki.blender.org/wiki/Reference/Release_Notes/2.90/Python_API#Compatibility
 
 def menu_func(self, context):
 	self.layout.operator(
@@ -60,12 +59,15 @@ def menu_func(self, context):
 		text=DummyOp.bl_label,
 		icon='PLUGIN')
 
+classes = [DummyOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()

@@ -1,6 +1,6 @@
 #  enable_driver_mod.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import bpy
 # this script will enable an add-on automatically
 # if it is in a text file inside your .blend and
 # the name of the text file ends in .py.
-# also the Register checkbox should be checked.
+# also the Text -> Register checkbox should be checked.
 
 def myfunction(x):
 	return x*x

@@ -1,6 +1,6 @@
 #  chaincurveparent.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from mathutils import kdtree, Vector
 bl_info = {
 	"name": "Create a curve between selected objects and parent them to curve",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701221521),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301146),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Curve between objects parent",
 	"description": """Create a curve between selected objects""",
 	"category": "Experimental development"}
@@ -61,6 +61,18 @@ def object_list(objects, active=0):
 
 	return chain
 
+def add_object(context, ob):
+	"""
+	Add an object to the active view layer and make it the active object.
+	"""
+	scene = context.scene
+	layer = context.view_layer
+	layer_collection = context.layer_collection or layer.active_layer_collection
+	scene_collection = layer_collection.collection
+	scene_collection.objects.link(ob)
+	ob.select_set(True)
+	layer.objects.active = ob
+
 class CurveBetweenObjectsParent(bpy.types.Operator):
 	bl_idname = 'curve.curvebetweenobjectsparent'
 	bl_label = 'Curve between objects parent'
@@ -76,7 +88,7 @@ class CurveBetweenObjectsParent(bpy.types.Operator):
 		objects = object_list(so, so.index(context.active_object))
 
 		for ob in objects:
-			ob.select = False
+			ob.select_set(False)
 
 		midpoint = sum((ob.location for ob in objects),Vector()) / len(objects) # poll() guarantees we don't get a divide by zero
 
@@ -98,10 +110,7 @@ class CurveBetweenObjectsParent(bpy.types.Operator):
 			ob.parent_vertices = [i]*3
 			ob.location = Vector()  # set to (0,0,0)
 
-		context.scene.objects.link(curveob)
-
-		context.scene.objects.active = curveob
-		curveob.select = True
+		add_object(context, curveob)
 
 		return {"FINISHED"}
 
@@ -113,11 +122,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [CurveBetweenObjectsParent]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()

@@ -1,6 +1,6 @@
 #  addon_preferences.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ from random import randint
 bl_info = {
 	"name": "Add particle system",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701141649),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104291115),
+	"blender": (2, 92, 0),
 	"location": "View3D > Object > Add particle system",
 	"description": "Add a particle system with default # of particles set in add-on prefs",
 	"category": "Experimental development"}
@@ -56,7 +56,7 @@ class AddParticlesOp2(bpy.types.Operator):
 		return (context.mode == 'OBJECT')
 
 	def execute(self, context):
-		prefs = context.user_preferences.addons[__name__].preferences
+		prefs = context.preferences.addons[__name__].preferences
 
 		settings = 'Particles' + str(prefs.particle_count)
 
@@ -89,11 +89,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [AddParticlesOp2, ParticlePrefs]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.VIEW3D_MT_object.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.VIEW3D_MT_object.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()

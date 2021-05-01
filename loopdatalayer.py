@@ -1,6 +1,6 @@
 #  loopdatalayer.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy, bmesh
 bl_info = {
 	"name": "Loop Custom Data",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701011345),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011003),
+	"blender": (2, 92, 0),
 	"location": "View3D > Edit > Loop Custom Data",
 	"description": "Change/Add Loop Custom Data",
 	"warning": "",
@@ -64,7 +64,7 @@ class LoopCustomData(bpy.types.Operator):
 		for face in bm.faces:
 			for loop in face.loops:
 				loop[cl] = tuple((c-e[0])/e[1]
-						for c,e in zip(loop.vert.co,ext))
+						for c,e in zip(loop.vert.co,ext)) + (1.0, )  # we add a 1-tuple to the end of the 3-tuple because vertex colors are now RGB+A
 
 		# and we create a uv projection on the xy plane
 		uv = bm.loops.layers.uv.active
@@ -84,12 +84,15 @@ def menu_func(self, context):
 		text=LoopCustomData.bl_label,
 		icon='PLUGIN')
 
+classes = [LoopCustomData]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

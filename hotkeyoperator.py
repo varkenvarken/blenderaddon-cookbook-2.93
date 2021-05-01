@@ -1,6 +1,6 @@
 #  hotkeyoperator.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from random import random
 bl_info = {
 	"name": "Dummy Operator with hot key",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701150933),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105010948),
+	"blender": (2, 92, 0),
 	"location": "View3D > Object > Dummy Op",
 	"description": "A dummy operator with a hot key",
 	"category": "Experimental development"}
@@ -63,11 +63,15 @@ def dump_mapnames():
 			names.add(km.name)
 	print(sorted(names))
 
+classes = [HotkeyDummyOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 km = None
 ki = None
 
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_object.append(menu_func)
 
 	wm = bpy.context.window_manager
@@ -91,7 +95,8 @@ def unregister():
 		km.keymap_items.remove(ki)
 
 	bpy.types.VIEW3D_MT_object.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()
+# The following is no longer true for 2.92
 # even though we unregister stuff in the right order we still get some (harmless) warnings in the console:
 # "search for unknown operator 'OBJECT_OT_hotkeydummyop', 'OBJECT_OT_hotkeydummyop'"
 # see:

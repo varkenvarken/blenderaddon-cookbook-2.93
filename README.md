@@ -1,4 +1,4 @@
 # blenderaddon-cookbook
-Companion code to the book Blender Add-on Cookbook
+Companion code to the book Blender Add-on Cookbook 2.93 Edition
 
-Will be available on Blender Market https://blendermarket.com/creators/varkenvarken soon
+Available on Blender Market https://blendermarket.com/creators/varkenvarken

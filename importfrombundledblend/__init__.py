@@ -1,11 +1,30 @@
+#  importfrombundledblend
+#
+#  (c) 2017 - 2021 Michel Anders
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+
 import bpy
 import os
 
 bl_info = {
 	"name": "Import object from bundled .blend",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701131522),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105010955),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Import Operator",
 	"description": "A dummy operator",
 	"warning": "",
@@ -13,6 +32,17 @@ bl_info = {
 	"tracker_url": "",
 	"category": "Experimental development"}
 
+def add_object(context, ob):
+	"""
+	Add an object to the active view layer and make it the active object.
+	"""
+	scene = context.scene
+	layer = context.view_layer
+	layer_collection = context.layer_collection or layer.active_layer_collection
+	scene_collection = layer_collection.collection
+	scene_collection.objects.link(ob)
+	ob.select_set(True)
+	layer.objects.active = ob
 
 class DummyOp(bpy.types.Operator):
 	bl_idname = 'mesh.importop'
@@ -36,8 +66,7 @@ class DummyOp(bpy.types.Operator):
 		# was a list of names but now we left the context it
 		# is transnuted into a list of objects!
 		for ob in data_to.objects:
-			context.scene.objects.link(ob)
-		context.scene.update()
+			add_object(context, ob)
 		return {"FINISHED"}
 
 def menu_func(self, context):
@@ -46,11 +75,15 @@ def menu_func(self, context):
 		text=DummyOp.bl_label)
 
 
+classes = [DummyOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+	unregister_classes()

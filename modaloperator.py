@@ -1,6 +1,6 @@
 #  modaloperator.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import bpy
 bl_info = {
 	"name": "Modal Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612270748),
-	"blender": (2, 78, 0),
-	"location": "View3D > Add > Mesh > Modal Operator",
+	"version": (0, 0, 202105011334),
+	"blender": (2, 92, 0),
+	"location": "View3D > Object > Modal Operator",
 	"description": "Example of a modal operator",
 	"warning": "",
 	"wiki_url": "",
@@ -43,11 +43,11 @@ class ModalOp(bpy.types.Operator):
 
 	def modal(self, context, event):
 		context.area.header_text_set(
-			"event: {e.type} {e.value} ({e.mouse_x},{e.mouse_y})".format(e=event))
+			text="event: {e.type} {e.value} ({e.mouse_x},{e.mouse_y})".format(e=event))
 		context.area.tag_redraw()
 
 		if event.type in {'RIGHTMOUSE', 'ESC'}:
-			context.area.header_text_set()
+			context.area.header_text_set(text=None)
 			context.area.tag_redraw()
 			return {'CANCELLED'}
 
@@ -66,11 +66,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [ModalOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_object.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_object.remove(menu_func)
+	unregister_classes()

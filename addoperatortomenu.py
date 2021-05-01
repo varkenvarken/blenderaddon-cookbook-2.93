@@ -1,6 +1,6 @@
 #  addoperatortomenu.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy
 bl_info = {
 	"name": "Dummy Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701131351),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104300910),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Dummy Op",
 	"description": "A dummy operator",
 	"warning": "",
@@ -38,7 +38,7 @@ class DummyOp(bpy.types.Operator):
 	bl_label = 'Dummy Operator'
 	bl_options = {'REGISTER', 'UNDO'}
 
-	radius = bpy.props.FloatProperty(name="Radius",
+	size : bpy.props.FloatProperty(name="Size",
 		default=1.0, min=0.1, max=10.0)
 
 	@classmethod
@@ -47,7 +47,7 @@ class DummyOp(bpy.types.Operator):
 
 	def execute(self, context):
 		# do something simple but visible
-		bpy.ops.mesh.primitive_cube_add(radius=self.radius)
+		bpy.ops.mesh.primitive_cube_add(size=self.size)
 		return {"FINISHED"}
 
 def menu_func(self, context):
@@ -67,21 +67,24 @@ def menu_func(self, context):
 	op = self.layout.operator(
 		DummyOp.bl_idname,
 		text="Big cube",
-		icon='ZOOMIN')
-	op.radius = 2.0
+		icon='ZOOM_IN')
+	op.size = 2.0
 	op = self.layout.operator(
 		DummyOp.bl_idname,
 		text="Little cube",
-		icon='ZOOMOUT')
-	op.radius = 1.0
+		icon='ZOOM_OUT')
+	op.size = 1.0
 
 
+classes = [DummyOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()

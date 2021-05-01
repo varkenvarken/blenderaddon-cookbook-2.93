@@ -1,6 +1,6 @@
 #  drawhandler.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,14 +22,17 @@ import bpy
 from bpy.props import BoolProperty
 import bgl
 import blf
+import gpu
+from gpu_extras.batch import batch_for_shader
+
 from time import localtime, strftime
 from math import sin,cos
 
 bl_info = {
 	"name": "Draw Handler",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201703121240),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301334),
+	"blender": (2, 92, 0),
 	"location": "View3D > View > Show clock",
 	"description": "Install a clock",
 	"warning": "",
@@ -64,32 +67,36 @@ def cursor_handler(context):
 	blf.size(font_id, 12, 72)  # 12pt text at 72dpi screen
 	blf.draw(font_id, strftime("%H:%M:%S", t))
 
+	# also see: https://blog.michelanders.nl/2019/02/working-with-new-opengl-functionality.html
 	# 50% alpha, 2 pixel lines
 	bgl.glEnable(bgl.GL_BLEND)
-	bgl.glColor4f(1.0, 1.0, 1.0, 0.5)
 	bgl.glLineWidth(2)
 
+	points = []
 	# draw a clock in the lower right hand corner
 	startx, starty = (width - 22.0,22.0)
 	smallhandx, smallhandy = (startx + 9*sin(twopi * h/12),
 							starty + 9*cos(twopi * h/12))
 	bighandx, bighandy = (startx + 15*sin(twopi * m/60),
 							starty + 15*cos(twopi * m/60))
-	bgl.glBegin(bgl.GL_LINES)
-	bgl.glVertex2f(startx, starty)
-	bgl.glVertex2f(bighandx, bighandy)
-	bgl.glVertex2f(startx, starty)
-	bgl.glVertex2f(smallhandx, smallhandy)
+	points.append((startx, starty))
+	points.append((bighandx, bighandy))
+	points.append((startx, starty))
+	points.append((smallhandx, smallhandy))
 	# twelve small dots
 	for x,y in ticks:
-		bgl.glVertex2f(startx + 17*x, starty + 17*y)
-		bgl.glVertex2f(startx + 18*x, starty + 18*y)
-	bgl.glEnd()
+		points.append((startx + 17*x, starty + 17*y))
+		points.append((startx + 18*x, starty + 18*y))
 
+	shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
+	batch = batch_for_shader(shader, 'LINES', {"pos": points})
+	shader.bind()
+	shader.uniform_float("color", (1.0, 1.0, 1.0, 0.5))
+	batch.draw(shader)
+  
 	# restore opengl defaults
 	bgl.glLineWidth(1)
 	bgl.glDisable(bgl.GL_BLEND)
-	bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
 
 # also see http://blender.stackexchange.com/questions/30295/how-add-properties-to-operator-modal-draw
 
@@ -129,7 +136,7 @@ class ModalDrawHandlerOp(bpy.types.Operator):
 			running = True
 			args = (context, )
 			handler = bpy.types.SpaceView3D.draw_handler_add(cursor_handler, args, 'WINDOW', 'POST_PIXEL')
-			timer = context.window_manager.event_timer_add(1.0, context.window)
+			timer = context.window_manager.event_timer_add(1.0, window=context.window)
 			context.window_manager.modal_handler_add(self)
 			return {'RUNNING_MODAL'}
 		return {"FINISHED"}
@@ -155,9 +162,12 @@ def menu_func(self, context):
 		text=DrawHandlerOp.bl_label,
 		icon='PLUGIN')
 
+classes = [DrawHandlerOp, ModalDrawHandlerOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_view.append(menu_func)
 
 
@@ -166,4 +176,4 @@ def unregister():
 	bpy.types.VIEW3D_MT_view.remove(menu_func)
 	if handler:
 		bpy.types.SpaceView3D.draw_handler_remove(handler, 'WINDOW')
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

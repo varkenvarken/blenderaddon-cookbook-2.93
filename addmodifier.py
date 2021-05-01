@@ -1,6 +1,6 @@
 #  addmodifier.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy
 bl_info = {
 	"name": "Add Modifier",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612291622),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104291106),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Object > Add Modifier",
 	"description": "Add a modifier",
 	"warning": "",
@@ -58,19 +58,21 @@ class AddModifier(bpy.types.Operator):
 			mod.levels = 2
 		return {"FINISHED"}
 
-
 def menu_func(self, context):
 	self.layout.operator(
 		AddModifier.bl_idname,
 		text=AddModifier.bl_label,
 		icon='PLUGIN')
 
+classes = [AddModifier]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.VIEW3D_MT_object.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.VIEW3D_MT_object.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()

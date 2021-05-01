@@ -1,6 +1,6 @@
 #  replacenodes.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy
 bl_info = {
 	"name": "Replace nodes",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701061324),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011504),
+	"blender": (2, 92, 0),
 	"location": "Node > Add > Replace nodes",
 	"description": "Replace all nodes in the material by a basic node setup",
 	"warning": "",
@@ -102,11 +102,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [ReplaceNodes]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.NODE_MT_add.append(menu_func)
 
 
 def unregister():
 	bpy.types.NODE_MT_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

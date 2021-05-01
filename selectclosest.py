@@ -1,6 +1,6 @@
 #  selectclosest.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import bpy
 bl_info = {
 	"name": "Select closest",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701201542),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011536),
+	"blender": (2, 92, 0),
 	"location": "View3D > Select > Select closest",
 	"description": "Select a vertex closest to any vertex of other selected mesh objects",
 	"category": "Experimental development"}
@@ -60,9 +60,9 @@ class SelectClosestOp(bpy.types.Operator):
 				obmatinv = ob.matrix_world.inverted()
 				for v1 in obverts:
 					# convert to world coords
-					v1_world = obmat * v1.co
+					v1_world = obmat @ v1.co  # note the @ operator here
 					# convert to object coords of other object
-					v1_object_other = obmatinv * v1_world
+					v1_object_other = obmatinv @ v1_world
 					for v2 in otherverts:
 						d2 = (v1_object_other - v2.co).length_squared
 						if d2 < distance_squared:
@@ -81,11 +81,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [SelectClosestOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_select_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_select_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

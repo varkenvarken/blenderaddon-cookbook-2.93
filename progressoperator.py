@@ -1,6 +1,6 @@
 #  progressoperator.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from time import sleep
 bl_info = {
 	"name": "Progress Operation",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612251157),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011422),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Progress",
 	"description": "An operator showing a progress bar",
 	"warning": "",
@@ -60,11 +60,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [ProgressOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+	unregister_classes()

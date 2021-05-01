@@ -1,6 +1,6 @@
 #  areareportoperator.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from time import sleep
 bl_info = {
 	"name": "Area Report Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612260941),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104300925),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Area Report",
 	"description": "Show info in an area header",
 	"warning": "",
@@ -48,7 +48,8 @@ class AreaReportOp(bpy.types.Operator):
 		# we need to keep a reference to the area because
 		# after the forced redraw the context is changed
 		area = context.area
-		area.header_text_set("Informational message")
+		area.header_text_set(text="Informational message")
+		area.tag_redraw()
 
 		# if we don't cause a redraw by our actions, the
 		# area header will not be shown. In that case we
@@ -63,7 +64,9 @@ class AreaReportOp(bpy.types.Operator):
 		except Exception:
 			pass
 		finally:
-			area.header_text_set()
+			# pass None to restore menu. Not an empty string!
+			area.header_text_set(text=None)
+			area.tag_redraw()
 		return {"FINISHED"}
 
 class AreaReportModalOp(bpy.types.Operator):
@@ -78,12 +81,12 @@ class AreaReportModalOp(bpy.types.Operator):
 	def modal(self, context, event):
 		# note that we now set this text during every event!
 		context.area.header_text_set(
-			"ESC or right mouse to exit")
+			text="ESC or right mouse to exit")
 		# not necessary but it doesn hurt:
 		context.area.tag_redraw()
 
 		if event.type in {'RIGHTMOUSE', 'ESC'}:
-			context.area.header_text_set()
+			context.area.header_text_set(text=None)
 			context.area.tag_redraw()
 			return {'CANCELLED'}
 
@@ -107,11 +110,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [AreaReportOp, AreaReportModalOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+	unregister_classes()

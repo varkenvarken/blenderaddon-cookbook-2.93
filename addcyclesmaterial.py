@@ -1,6 +1,6 @@
 #  addcyclesmaterial.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import bpy
 bl_info = {
 	"name": "Add Cycles Material",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701061038),
-	"blender": (2, 78, 0),
-	"location": "Node > Add > Add Cycles Materail",
+	"version": (0, 0, 202104291042),
+	"blender": (2, 92, 0),
+	"location": "Node > Add > Add Cycles Material",
 	"description": "A a basic cycles material",
 	"warning": "",
 	"wiki_url": "",
@@ -55,16 +55,26 @@ class AddCyclesMat(bpy.types.Operator):
 
 def menu_func(self, context):
 	self.layout.operator(
+		AddModifier.bl_idname,
+		text=AddModifier.bl_label,
+		icon='PLUGIN')
+
+
+def menu_func(self, context):
+	self.layout.operator(
 		AddCyclesMat.bl_idname,
 		text=AddCyclesMat.bl_label,
 		icon='PLUGIN')
 
+classes = [AddCyclesMat]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.NODE_MT_add.append(menu_func)
 
 
 def unregister():
 	bpy.types.NODE_MT_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

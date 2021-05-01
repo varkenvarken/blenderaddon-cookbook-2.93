@@ -1,6 +1,6 @@
 #  modaloperatorcursor.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import bpy
 bl_info = {
 	"name": "Modal Operator Cursor",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612271052),
-	"blender": (2, 78, 0),
-	"location": "View3D > Add > Mesh > Modal Operator",
+	"version": (0, 0, 202105011339),
+	"blender": (2, 92, 0),
+	"location": "View3D > Object > Modal Operator",
 	"description": "Modal operator with a changed cursor",
 	"warning": "",
 	"wiki_url": "",
@@ -71,12 +71,15 @@ def menu_func(self, context):
 		text=ModalOpCursor.bl_label,
 		icon='PLUGIN')
 
+classes = [ModalOpCursor]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
 
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_object.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_object.remove(menu_func)
+	unregister_classes()

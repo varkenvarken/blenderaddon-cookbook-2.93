@@ -1,6 +1,6 @@
 #  vertexgroup.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from bpy.props import BoolProperty
 bl_info = {
 	"name": "Vertex Group",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612311137),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011553),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Cube with vertex group",
 	"description": "Add a cube with a vertex group",
 	"warning": "",
@@ -39,7 +39,7 @@ class VertexGroupOp(bpy.types.Operator):
 	bl_label = 'Cube with vertex group'
 	bl_options = {'REGISTER', 'UNDO'}
 
-	usebmesh = BoolProperty(name='Use bmesh')
+	usebmesh : BoolProperty(name='Use bmesh')
 
 	@classmethod
 	def poll(self, context):
@@ -77,7 +77,7 @@ class VertexGroupOp(bpy.types.Operator):
 						v.select = True
 			bmesh.update_edit_mesh(ob.data)
 		else:
-			# mesh must be in obejct mode!
+			# mesh must be in object mode!
 			bpy.ops.object.mode_set(mode = 'OBJECT')
 			ob = context.active_object
 			mesh = ob.data
@@ -99,11 +99,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [VertexGroupOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+	unregister_classes()

@@ -1,6 +1,6 @@
 #  customproperty.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ from math import sin,cos,pi
 bl_info = {
 	"name": "Add a star object",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701151447),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301210),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Star",
 	"description": "Add a star object with custom object properties",
 	"category": "Experimental development"}
@@ -48,12 +48,12 @@ def updateStar(self, context):
 	bm.free()
 
 class StarPropertyGroup(bpy.types.PropertyGroup):
-	isstar = BoolProperty(name="Star", default=False)
-	points = IntProperty(name="Points",
+	star : BoolProperty(name="Star", default=False)
+	points : IntProperty(name="Points",
 					default=5, min=3, update=updateStar)
-	minradius = FloatProperty(name="Minimum r",
+	minradius : FloatProperty(name="Minimum r",
 					default=0.5, min=0, update=updateStar)
-	maxradius = FloatProperty(name="Maximum r",
+	maxradius : FloatProperty(name="Maximum r",
 					default=1, min=0, update=updateStar)
 
 class StarOp(bpy.types.Operator):
@@ -73,10 +73,10 @@ class StarOp(bpy.types.Operator):
 		updateStar(self, context)
 		return {"FINISHED"}
 
-class StarPanel(bpy.types.Panel):
+class VIEW3D_PT_star(bpy.types.Panel):
 	bl_label = "Star"
 	bl_space_type = "VIEW_3D"
-	bl_region_type = "TOOLS"
+	bl_region_type = "UI"
 	bl_category = "Star"
 	bl_options = set()
 
@@ -100,12 +100,18 @@ def menu_func(self, context):
 		text=StarOp.bl_label,
 		icon='PLUGIN')
 
+classes = [StarOp, VIEW3D_PT_star, StarPropertyGroup]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.Object.star = bpy.props.PointerProperty(type=StarPropertyGroup)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
+
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+	unregister_classes()
+
 

@@ -1,6 +1,6 @@
 #  selectclosestkd.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from mathutils import kdtree
 bl_info = {
 	"name": "Select closest kd",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701201629),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011541),
+	"blender": (2, 92, 0),
 	"location": "View3D > Select > Select closest kd",
 	"description": "Select a vertex closest to any vertex of other selected mesh objects using a kd tree",
 	"category": "Experimental development"}
@@ -53,7 +53,7 @@ class SelectClosestKDOp(bpy.types.Operator):
 		size = len(obverts)
 		kd = kdtree.KDTree(size)
 		for i, v in enumerate(obverts):
-			kd.insert(obmat * v.co, i)  # store in world coords
+			kd.insert(obmat @ v.co, i)  # store in world coords
 		kd.balance()
 
 		closest_vertex = -1
@@ -64,7 +64,7 @@ class SelectClosestKDOp(bpy.types.Operator):
 				obmatother = ob.matrix_world
 				for v in otherverts:
 					# convert to world coords
-					v_world = obmatother * v.co
+					v_world = obmatother @ v.co
 					co, index, dist = kd.find(v_world)
 					if dist < closest_distance:
 						closest_distance = dist
@@ -82,11 +82,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [SelectClosestKDOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_select_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_select_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

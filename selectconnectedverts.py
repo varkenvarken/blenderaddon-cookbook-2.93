@@ -1,6 +1,6 @@
 #  selectconnectedverts.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@ import bmesh
 bl_info = {
 	"name": "Select Connected Verts",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201612291107),
-	"blender": (2, 78, 0),
-	"location": "View3D > Add > Mesh > Connected Verts",
+	"version": (0, 0, 202105011543),
+	"blender": (2, 92, 0),
+	"location": "View3D > Select > Connected Verts",
 	"description": "A dummy operator",
 	"warning": "",
 	"wiki_url": "",
@@ -96,11 +96,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [ConnectedOp, ConnectedOpBMesh]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_select_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_select_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

@@ -1,6 +1,6 @@
 #  faceproperties.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ from random import random
 bl_info = {
 	"name": "Face Properties",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701010921),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301648),
+	"blender": (2, 92, 0),
 	"location": "View3D > Mesh > Face Properties",
 	"description": "Face Properties",
 	"warning": "",
@@ -74,11 +74,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [FacePropertiesOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

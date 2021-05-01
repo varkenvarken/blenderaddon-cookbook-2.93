@@ -1,6 +1,6 @@
 #  numpyscalecm.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ from time import time
 bl_info = {
 	"name": "Numpy Scale",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701011501),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202105011354),
+	"blender": (2, 92, 0),
 	"location": "View3D > Object > Numpy Scale",
 	"description": "Scale around center of mass",
 	"warning": "",
@@ -112,11 +112,15 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [NumpyScaleOp]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_object.append(menu_func)
 
 
 def unregister():
 	bpy.types.VIEW3D_MT_object.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()

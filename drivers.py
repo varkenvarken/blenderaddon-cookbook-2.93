@@ -1,6 +1,6 @@
 #  drivers.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ import bpy
 bl_info = {
 	"name": "Dummy Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701141335),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301605),
+	"blender": (2, 92, 0),
 	"location": "None: this add-on provides driver functions",
 	"description": "Provides the driver 'myfunction'",
 	"category": "Experimental development"}

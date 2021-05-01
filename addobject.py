@@ -1,6 +1,6 @@
 #  addobject.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ from bpy_extras.object_utils import object_data_add
 bl_info = {
 	"name": "Dummy Operator",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201703041434),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104291113),
+	"blender": (2, 92, 0),
 	"location": "View3D > Add > Mesh > Dummy Op",
 	"description": "A dummy operator",
 	"category": "Experimental development"}
@@ -56,10 +56,16 @@ def menu_func(self, context):
 		text=DummyOpObject.bl_label,
 		icon='PLUGIN')
 
+classes = [DummyOpObject]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
-	bpy.types.INFO_MT_mesh_add.append(menu_func)
+	register_classes()
+	bpy.types.VIEW3D_MT_add.append(menu_func)
+
 
 def unregister():
-	bpy.types.INFO_MT_mesh_add.remove(menu_func)
-	bpy.utils.unregister_module(__name__)
+	bpy.types.VIEW3D_MT_add.remove(menu_func)
+	unregister_classes()
+

@@ -1,6 +1,6 @@
 #  coords3dto2d.py
 #
-#  (c) 2017 Michel Anders
+#  (c) 2017 - 2021 Michel Anders
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ from bpy_extras import view3d_utils
 bl_info = {
 	"name": "3D Coords to 2D",
 	"author": "Michel Anders (varkenvarken)",
-	"version": (0, 0, 201701081438),
-	"blender": (2, 78, 0),
+	"version": (0, 0, 202104301153),
+	"blender": (2, 92, 0),
 	"location": "View3D > Object > Show coords",
 	"description": "Show coords of vertices",
 	"warning": "",
@@ -107,8 +107,12 @@ def menu_func(self, context):
 		icon='PLUGIN')
 
 
+classes = [ShowCoords, ShowCoordsEnd]
+
+register_classes, unregister_classes = bpy.utils.register_classes_factory(classes)
+
 def register():
-	bpy.utils.register_module(__name__)
+	register_classes()
 	bpy.types.VIEW3D_MT_object.append(menu_func)
 
 
@@ -117,4 +121,4 @@ def unregister():
 	bpy.types.VIEW3D_MT_object.remove(menu_func)
 	if handler:
 		bpy.types.SpaceView3D.draw_handler_remove(handler, 'WINDOW')
-	bpy.utils.unregister_module(__name__)
+	unregister_classes()
